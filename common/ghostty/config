@@ -1,0 +1,25 @@
+# Ghostty — shared by every machine (dotfiles/common/ghostty/config).
+# OS- and machine-specific settings are pulled in at the bottom.
+
+theme = gruvbox-dark-soft
+
+font-size = 14
+window-padding-x = 12
+window-padding-y = 8
+window-padding-balance = true
+cursor-style = bar
+mouse-hide-while-typing = true
+
+# Force every window/tab title to a single space so title bars stay blank.
+title = " "
+
+# On ssh, copy Ghostty's terminfo to the remote host and fall back to
+# xterm-256color if that fails, so remote apps render correctly.
+shell-integration-features = ssh-terminfo,ssh-env
+
+# Optional includes (the leading ? means "skip if missing"). Ghostty has no
+# end-of-line comments, so each note sits above its line.
+# OS add-on: dotfiles/os/<os>/ghostty.conf
+config-file = ?os.conf
+# Machine add-on: dotfiles/hosts/<host>/ghostty.conf
+config-file = ?host.conf

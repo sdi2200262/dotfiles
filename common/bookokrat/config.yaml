@@ -1,0 +1,44 @@
+version: 3
+theme: "Gruvbox Dark Soft"
+margin: 0
+transparent_background: false
+pdf_scale: 0.6
+pdf_pan_shift: 0
+pdf_render_mode: page
+pdf_page_layout_mode: single
+epub_column_mode: single
+pdf_enabled: true
+kitty_max_image_raw_mb: 20
+pdf_settings_configured: true
+justify_text: false
+invert_scroll_direction: false
+book_sort_order: by_name
+
+custom_themes:
+  - scheme: "Gruvbox Dark Soft"
+    author: "Dawid Kurek (dawikur@gmail.com), morhetz (https://github.com/morhetz/gruvbox)"
+    base00: "32302f"    # Main background (soft contrast)
+    base01: "3c3836"    # Lighter background (status bars)
+    base02: "504945"    # Selection background
+    base03: "665c54"    # Comments, muted text
+    base04: "bdae93"    # Dark foreground
+    base05: "d5c4a1"    # Default text
+    base06: "ebdbb2"    # Light foreground
+    base07: "fbf1c7"    # Brightest text
+    base08: "fb4934"    # Red (errors)
+    base09: "fe8019"    # Orange (constants)
+    base0A: "fabd2f"    # Yellow (search)
+    base0B: "b8bb26"    # Green (strings)
+    base0C: "8ec07c"    # Cyan/aqua
+    base0D: "83a598"    # Blue (links)
+    base0E: "d3869b"    # Purple (keywords)
+    base0F: "d65d0e"    # Brown/orange-dark
+
+
+nav_panel_width: 30
+lookup_command: null
+lookup_display: popup
+synctex_editor: null
+
+pdf_show_link_underlines: false
+zen_hide_border: false
