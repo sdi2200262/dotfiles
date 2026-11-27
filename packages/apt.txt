@@ -1,0 +1,23 @@
+# CLI tools for every Debian/Ubuntu machine. Names apt doesn't know on a
+# given release are skipped; setup.sh installs those from GitHub releases.
+zsh
+zsh-autosuggestions
+zsh-syntax-highlighting
+tmux
+git
+git-lfs
+git-delta
+gh
+curl
+wget
+unzip
+xz-utils
+jq
+ripgrep
+fd-find
+fzf
+bat
+eza
+zoxide
+starship
+hx
