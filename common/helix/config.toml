@@ -1,0 +1,40 @@
+theme = "gruvbox_dark_soft"
+
+[editor]
+true-color = true
+bufferline = "always"        # tab bar of open files across the top
+color-modes = true           # tint the mode indicator by mode
+cursorline = true            # highlight the line the cursor is on
+mouse = true                 # click to move cursor, drag to select
+
+[editor.cursor-shape]
+insert = "bar"               # I-beam while typing, so insert vs normal is obvious
+
+[editor.soft-wrap]
+enable = true
+
+[editor.inline-diagnostics]
+cursor-line = "hint"         # show Harper's message at end of the cursor's line
+
+[keys.normal]
+C-s = ":w"                                              # save
+X = "extend_line_above"                                 # x extends lines down, X up
+A-x = "extend_to_line_bounds"                           # snap selection to full lines
+esc = ["collapse_selection", "keep_primary_selection"]  # drop back to a single cursor
+n = ["search_next", "align_view_center"]                # next match, kept centered
+N = ["search_prev", "align_view_center"]                # previous match, kept centered
+"A-," = "goto_previous_buffer"                          # previous buffer (tab)
+"A-." = "goto_next_buffer"                              # next buffer (tab)
+"A-/" = "repeat_last_motion"                            # repeat motion (moved off A-.)
+
+[keys.normal.space]
+q = ":buffer-close"                                     # close current buffer
+l = [":write-all", ":new", ":insert-output lazygit", ":buffer-close!", ":redraw", ":reload-all"]
+
+[keys.select]
+
+X = "extend_line_above"
+A-x = "extend_to_line_bounds"
+
+[keys.insert]
+C-s = ":w"

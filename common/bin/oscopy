@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Copy stdin to the client clipboard via OSC 52 (works over SSH/tmux-passthrough).
+buf=$(cat; printf x); buf=${buf%x}
+printf '\033]52;c;%s\007' "$(printf %s "$buf" | base64 | tr -d '\n')"

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Gruvbox Dark (soft) syntect theme for tuicr. Scope colours follow the
+     gruvbox.vim role mapping, using the same hexes as the sibling UI theme. -->
+<plist version="1.0">
+<dict>
+  <key>name</key>
+  <string>Gruvbox Dark Soft</string>
+  <key>settings</key>
+  <array>
+    <dict>
+      <key>settings</key>
+      <dict>
+        <key>background</key><string>#32302f</string>
+        <key>foreground</key><string>#ebdbb2</string>
+        <key>caret</key><string>#fe8019</string>
+        <key>lineHighlight</key><string>#3c3836</string>
+        <key>selection</key><string>#504945</string>
+        <key>invisibles</key><string>#504945</string>
+      </dict>
+    </dict>
+    <dict>
+      <key>name</key><string>Comment</string>
+      <key>scope</key><string>comment, punctuation.definition.comment</string>
+      <key>settings</key><dict>
+        <key>fontStyle</key><string>italic</string>
+        <key>foreground</key><string>#928374</string>
+      </dict>
+    </dict>
+    <dict>
+      <key>name</key><string>String</string>
+      <key>scope</key><string>string, string.quoted, punctuation.definition.string</string>
+      <key>settings</key><dict><key>foreground</key><string>#b8bb26</string></dict>
+    </dict>
+    <dict>
+      <key>name</key><string>Number, Constant, Boolean</string>
+      <key>scope</key><string>constant.numeric, constant.language, constant.character, constant.other</string>
+      <key>settings</key><dict><key>foreground</key><string>#d3869b</string></dict>
+    </dict>
+    <dict>
+      <key>name</key><string>Keyword, Storage</string>
+      <key>scope</key><string>keyword, keyword.control, keyword.operator.word, storage, storage.type, storage.modifier</string>
+      <key>settings</key><dict><key>foreground</key><string>#fb4934</string></dict>
+    </dict>
+    <dict>
+      <key>name</key><string>Operator</string>
+      <key>scope</key><string>keyword.operator</string>
+      <key>settings</key><dict><key>foreground</key><string>#fe8019</string></dict>
+    </dict>
+    <dict>
+      <key>name</key><string>Function</string>
+      <key>scope</key><string>entity.name.function, support.function, meta.function-call, variable.function</string>
+      <key>settings</key><dict><key>foreground</key><string>#b8bb26</string></dict>
+    </dict>
+    <dict>
+      <key>name</key><string>Type, Class</string>
+      <key>scope</key><string>entity.name.type, entity.name.class, entity.other.inherited-class, support.type, support.class</string>
+      <key>settings</key><dict><key>foreground</key><string>#fabd2f</string></dict>
+    </dict>
+    <dict>
+      <key>name</key><string>Variable</string>
+      <key>scope</key><string>variable, variable.other, variable.parameter</string>
+      <key>settings</key><dict><key>foreground</key><string>#ebdbb2</string></dict>
+    </dict>
+    <dict>
+      <key>name</key><string>Language variable (self/this)</string>
+      <key>scope</key><string>variable.language</string>
+      <key>settings</key><dict><key>foreground</key><string>#83a598</string></dict>
+    </dict>
+    <dict>
+      <key>name</key><string>Tag</string>
+      <key>scope</key><string>entity.name.tag, punctuation.definition.tag</string>
+      <key>settings</key><dict><key>foreground</key><string>#fb4934</string></dict>
+    </dict>
+    <dict>
+      <key>name</key><string>Attribute</string>
+      <key>scope</key><string>entity.other.attribute-name</string>
+      <key>settings</key><dict><key>foreground</key><string>#fabd2f</string></dict>
+    </dict>
+    <dict>
+      <key>name</key><string>Preprocessor, support constant</string>
+      <key>scope</key><string>meta.preprocessor, keyword.other.preprocessor, support.constant</string>
+      <key>settings</key><dict><key>foreground</key><string>#8ec07c</string></dict>
+    </dict>
+    <dict>
+      <key>name</key><string>Heading / section</string>
+      <key>scope</key><string>entity.name.section, markup.heading</string>
+      <key>settings</key><dict>
+        <key>fontStyle</key><string>bold</string>
+        <key>foreground</key><string>#b8bb26</string>
+      </dict>
+    </dict>
+    <dict>
+      <key>name</key><string>Punctuation</string>
+      <key>scope</key><string>punctuation, meta.brace, meta.delimiter</string>
+      <key>settings</key><dict><key>foreground</key><string>#ebdbb2</string></dict>
+    </dict>
+    <dict>
+      <key>name</key><string>Invalid</string>
+      <key>scope</key><string>invalid, invalid.illegal</string>
+      <key>settings</key><dict><key>foreground</key><string>#fb4934</string></dict>
+    </dict>
+  </array>
+</dict>
+</plist>

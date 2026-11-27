@@ -1,0 +1,189 @@
+# ~/.zshrc — shared by every machine (dotfiles/common/zsh/zshrc).
+# OS differences are handled inline; machine-only bits go in ~/.zshrc.local.
+
+case "$OSTYPE" in darwin*) IS_MAC=1 ;; *) IS_MAC= ;; esac
+
+if [[ -z ${DOTFILES_HOST:-} && -r "$HOME/.config/dotfiles/host" ]]; then
+    IFS= read -r DOTFILES_HOST < "$HOME/.config/dotfiles/host" || true
+fi
+export DOTFILES_HOST="${DOTFILES_HOST:-${HOST%%.*}}"
+
+# ── PATH ──────────────────────────────────────────────────────────
+# Move a directory to the front of PATH (removing any later copy), so the
+# last call wins and nested shells don't grow PATH.
+path_prepend() { [[ -d "$1" ]] && path=("$1" ${path:#$1}); }
+if [[ -n $IS_MAC ]]; then
+    path_prepend /usr/local/bin                                  # Homebrew (Intel)
+    path_prepend /opt/homebrew/bin                               # Homebrew (Apple Silicon)
+    path_prepend /Library/TeX/texbin                            # MacTeX
+fi
+path_prepend "$HOME/.opencode/bin"
+path_prepend "$HOME/.local/bin"         # uv, starship, fzf, lazygit, LSPs, dotfiles/bin
+export PATH
+[ -f "$HOME/.local/bin/env" ] && . "$HOME/.local/bin/env"   # uv env
+
+# Default editor
+export EDITOR="hx"
+export VISUAL="hx"
+
+# ── node via nvm ────────────────────────────────────────────────
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+# ── modern CLI tools ──────────────────────────────────────────────
+# eza (better ls)
+alias ls="eza --icons"
+alias ll="eza -lh --icons --git"
+alias la="eza -lah --icons --git"
+alias lt="eza --tree --icons --git-ignore"
+
+# bat (better cat). Debian/Ubuntu ship `batcat`/`fdfind`; setup.sh links
+# ~/.local/bin/bat and ~/.local/bin/fd so these names work everywhere.
+alias cat="bat"
+
+# lazygit: keep its config in ~/.config on macOS too (default is ~/Library).
+if [[ -n $IS_MAC ]]; then
+    alias lg="CONFIG_DIR=\"$HOME/.config/lazygit\" lazygit"
+else
+    alias lg="lazygit"
+fi
+
+# tuicr (terminal code-review TUI; pronounced "tweaker")
+command -v tuicr >/dev/null 2>&1 && alias tk="tuicr"
+
+# Cursor CLI ships as `agent`; call it what it is
+command -v agent >/dev/null 2>&1 && alias cursor="agent"
+
+# git-delta (used automatically via ~/.gitconfig, alias for quick diff)
+alias gd="git diff"
+
+# bookokrat (terminal EPUB/PDF reader)
+command -v bookokrat >/dev/null 2>&1 && alias bk="bookokrat"
+
+# zoxide (smart cd — use 'z <dir>' to jump, 'zi' for interactive)
+command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init zsh)"
+
+# yazi (file manager). `y` cds the shell to where you quit; `Q` to keep $PWD.
+# `command cat` bypasses the bat alias above.
+y() {
+    local tmp cwd
+    tmp="$(mktemp -t yazi-cwd.XXXXXX)" || return 1
+    command yazi "$@" --cwd-file="$tmp"
+    cwd="$(command cat -- "$tmp")"
+    rm -f -- "$tmp"
+    [ -n "$cwd" ] && [ "$cwd" != "$PWD" ] && builtin cd -- "$cwd"
+}
+
+# ── Tuxedo CLI task manager ──────────────────────────────────────────────
+# Pass a path so a bare `tx` opens (and creates if missing) ./todo.txt in the
+# current dir, instead of falling back to the bundled sample. `tx <path>` still works.
+if command -v tuxedo >/dev/null 2>&1; then
+    tx() { command tuxedo "${1:-todo.txt}"; }
+fi
+
+# ── fzf (fuzzy finder) ────────────────────────────────────────────
+if [[ -t 0 ]] && command -v fzf >/dev/null 2>&1; then
+    export FZF_DEFAULT_COMMAND="fd --hidden --strip-cwd-prefix --exclude .git"
+    export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+    export FZF_ALT_C_COMMAND="fd --type d --hidden --strip-cwd-prefix --exclude .git"
+
+    # gruvbox dark soft palette
+    export FZF_DEFAULT_OPTS="
+        --height 60%
+        --layout=reverse
+        --border=rounded
+        --info=inline
+        --prompt='› '
+        --pointer='▸'
+        --marker='✓'
+        --color=bg+:#3c3836,bg:-1,spinner:#fabd2f,hl:#fabd2f
+        --color=fg:#ebdbb2,header:#83a598,info:#928374,pointer:#fb4934
+        --color=marker:#b8bb26,fg+:#ebdbb2,prompt:#fe8019,hl+:#fabd2f
+        --color=border:#504945"
+
+    # ctrl-y copies the command to the clipboard. oscopy (dotfiles/common/bin)
+    # uses OSC 52, so it works locally and over SSH on every machine.
+    export FZF_CTRL_R_OPTS="
+        --bind 'ctrl-y:execute-silent(echo -n {2..} | oscopy)+abort'
+        --color header:italic
+        --header 'Press CTRL-Y to copy command into clipboard'"
+
+    export FZF_CTRL_T_OPTS="--preview 'bat --style=numbers --color=always --line-range :200 {} 2>/dev/null || eza --tree --color=always {} | head -100'"
+
+    source <(fzf --zsh)
+fi
+
+# ── history ───────────────────────────────────────────────────────
+HISTFILE="$HOME/.zsh_history"
+HISTSIZE=100000
+SAVEHIST=100000
+setopt EXTENDED_HISTORY          # timestamps in history file
+setopt INC_APPEND_HISTORY        # write immediately, not on shell exit
+setopt SHARE_HISTORY             # share between concurrent sessions
+setopt HIST_IGNORE_DUPS          # don't record consecutive duplicates
+setopt HIST_IGNORE_ALL_DUPS      # remove older dup when new added
+setopt HIST_IGNORE_SPACE         # don't record commands starting with space
+setopt HIST_REDUCE_BLANKS        # trim superfluous blanks
+setopt HIST_VERIFY               # show !! expansion before running
+
+# ── completions + plugins: find them wherever the package manager put them ──
+# brew: /usr/local/share or /opt/homebrew/share; apt: /usr/share.
+ZSH_SHARE_DIRS=(/opt/homebrew/share /usr/local/share /usr/share)
+for d in $ZSH_SHARE_DIRS; do
+    [ -d "$d/zsh-completions" ] && fpath=("$d/zsh-completions" $fpath)
+    [ -d "$d/zsh/site-functions" ] && fpath=("$d/zsh/site-functions" $fpath)
+done
+fpath=("$HOME/.local/share/zsh-completions/src" /usr/share/zsh/vendor-completions "$HOME/.local/share/zsh/site-functions" $fpath)
+autoload -Uz compinit && compinit
+zstyle ':completion:*' menu select                       # arrow-key selectable menu
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'   # case-insensitive matching
+zstyle ':completion:*' list-colors 'ma=0;1' '=*=2'       # dim list, current choice plain-bold (no bar)
+
+# source the first copy of a plugin found (load order: suggestions, then highlighting last)
+zsh_plugin() {
+    local d
+    for d in $ZSH_SHARE_DIRS; do
+        [ -f "$d/$1/$1.zsh" ] && { source "$d/$1/$1.zsh"; return; }
+    done
+}
+zsh_plugin zsh-autosuggestions
+ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#665c54"  # gruvbox bg3 (faded)
+
+zsh_plugin zsh-syntax-highlighting
+
+# Gruvbox soft palette for syntax highlighting
+typeset -gA ZSH_HIGHLIGHT_STYLES
+ZSH_HIGHLIGHT_STYLES[command]='fg=#b8bb26'              # green: valid command
+ZSH_HIGHLIGHT_STYLES[builtin]='fg=#b8bb26'
+ZSH_HIGHLIGHT_STYLES[function]='fg=#b8bb26'
+ZSH_HIGHLIGHT_STYLES[alias]='fg=#b8bb26'
+ZSH_HIGHLIGHT_STYLES[precommand]='fg=#b8bb26,italic'    # sudo, nohup, etc.
+ZSH_HIGHLIGHT_STYLES[unknown-token]='fg=#fb4934'        # red: invalid
+ZSH_HIGHLIGHT_STYLES[path]='fg=#ebdbb2'
+ZSH_HIGHLIGHT_STYLES[globbing]='fg=#fabd2f'
+ZSH_HIGHLIGHT_STYLES[single-quoted-argument]='fg=#fabd2f'
+ZSH_HIGHLIGHT_STYLES[double-quoted-argument]='fg=#fabd2f'
+ZSH_HIGHLIGHT_STYLES[redirection]='fg=#fe8019'
+ZSH_HIGHLIGHT_STYLES[comment]='fg=#928374,italic'
+
+# ── starship prompt ───────────────────────────────────────────────
+command -v starship >/dev/null 2>&1 && eval "$(starship init zsh)"
+
+# ── cursor ────────────────────────────────────────────────────────
+# Steady bar (I-beam) at the prompt, matching Ghostty's cursor-style = bar.
+# Re-set on every prompt so it stays a bar after a full-screen program
+# (Helix, lazygit) leaves a different shape. DECSCUSR: 6 = steady bar.
+autoload -Uz add-zsh-hook
+_cursor_bar() { print -n '\e[6 q' }
+add-zsh-hook precmd _cursor_bar
+print -n '\e[6 q'
+
+# worktrunk (git worktree helper)
+if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)"; fi
+
+# Machine-only additions (not in the repo)
+if [ -f "$HOME/.zshrc.local" ]; then
+    source "$HOME/.zshrc.local"
+fi

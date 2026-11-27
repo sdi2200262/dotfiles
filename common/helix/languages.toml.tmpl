@@ -1,0 +1,32 @@
+[language-server.harper-ls]
+command = "harper-ls"
+args = ["--stdio"]
+
+[language-server.harper-ls.config.harper-ls]
+dialect = "British"
+userDictPath = "@HOME@/.config/harper-ls/dict.txt"
+
+[[language]]
+name = "latex"
+language-servers = ["texlab", "harper-ls"]
+
+[[language]]
+name = "markdown"
+language-servers = ["markdown-oxide", "marksman", "harper-ls"]
+
+[language-server.pyright]
+command = "pyright-langserver"
+args = ["--stdio"]
+
+[[language]]
+name = "python"
+language-servers = ["pyright", "ruff"]
+auto-format = true
+
+[language-server.csharp-ls]
+command = "csharp-ls"
+
+[[language]]
+name = "c-sharp"
+language-servers = ["csharp-ls"]
+roots = ["."]
