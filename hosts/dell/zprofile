@@ -1,0 +1,5 @@
+# Dell: log in on tty1 → start sway. Quitting sway logs you out.
+# Other TTYs (Ctrl+Alt+F2…F6) stay plain text logins for rescue.
+if [ -z "$WAYLAND_DISPLAY" ] && [ "$(tty)" = /dev/tty1 ]; then
+    exec sway
+fi

@@ -1,0 +1,15 @@
+#!/bin/sh
+set -eu
+
+bin="$(dirname "$(readlink -f "$0")")"
+sheet="$bin/../KEYS.md"
+
+render() {
+    sed -e '1s/^# //' -e '/^```$/d' "$sheet"
+}
+
+if [ -t 0 ] && [ -t 1 ]; then
+    render | less
+else
+    render
+fi

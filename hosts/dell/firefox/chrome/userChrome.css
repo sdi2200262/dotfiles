@@ -1,0 +1,33 @@
+/* The theme (theme/manifest.json) colours the browser UI. This catches the
+   blue accents it can't reach: primary buttons, focus rings, toggles, badges. */
+:root {
+  --color-accent-primary: #fabd2f !important;
+  --color-accent-primary-hover: #d79921 !important;
+  --color-accent-primary-active: #b57614 !important;
+  --button-text-color-primary: #282828 !important;
+  --focus-outline-color: #fabd2f !important;
+  --toolbarbutton-icon-fill-attention: #fabd2f !important;
+  --link-color: #83a598 !important;
+  --urlbarView-action-color: #83a598 !important;
+}
+/* URLs in the address-bar dropdown are cyan by default */
+.urlbarView-url { color: #83a598 !important; }
+.urlbarView-row[selected] .urlbarView-url { color: inherit !important; }
+/* hide the blue "sign in" dot on the account button */
+#fxa-toolbar-menu-button .avatar-container::after,
+#fxa-toolbar-menu-button .toolbarbutton-badge { display: none !important; }
+/* hovered items in context menus and <select> dropdowns use the GTK blue */
+menupopup :is(menu, menuitem)[_moz-menuactive]:not([disabled]) {
+  background-color: #504945 !important;
+  color: #ebdbb2 !important;
+}
+menupopup :is(menu, menuitem)[_moz-menuactive][disabled] { background-color: #3c3836 !important; }
+/* context menus and <select> dropdowns use the GTK menu colours, not the theme's popup */
+:is(menupopup, panel):not([type="arrow"]) {
+  --panel-background-color: #3c3836 !important;
+  --panel-text-color: #ebdbb2 !important;
+  --panel-border-color: #504945 !important;
+  --panel-separator-color: #504945 !important;
+}
+/* no minimise/close buttons in the tab strip: sway manages windows, same as Ghostty */
+.titlebar-buttonbox-container { display: none !important; }

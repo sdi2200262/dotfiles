@@ -1,0 +1,121 @@
+# sway — Dell. Super = windows, Ctrl+Alt = Herdr (spaces, tabs, panes).
+# Colours: gruvbox dark soft.
+
+set $mod Mod4
+set $dark #282828
+set $bg   #32302f
+set $bg1  #3c3836
+set $bg2  #504945
+set $bg3  #665c54
+set $fg   #ebdbb2
+set $gray #a89984
+set $dim  #928374
+set $yel  #fabd2f
+set $red  #fb4934
+
+font pango:monospace 10
+output * bg $bg solid_color
+input type:keyboard repeat_delay 300
+input type:keyboard repeat_rate 40
+input type:touchpad tap enabled
+# Hide the mouse pointer after 3 s still, and while typing.
+seat * hide_cursor 3000
+seat * hide_cursor when-typing enable
+
+# A lone window fills the screen. Two or more: 2px border (yellow = focused), 6px gap.
+default_border pixel 2
+default_floating_border pixel 2
+gaps inner 6
+smart_borders on
+smart_gaps on
+client.focused   $yel $yel $bg $yel $yel
+client.unfocused $bg2 $bg  $dim $bg2 $bg2
+client.focused_inactive $bg2 $bg $dim $bg2 $bg2
+client.urgent   $red $red $dark $red $red
+
+# Super+drag moves a window, Super+right-drag resizes it.
+floating_modifier $mod normal
+
+# Login: Firefox on workspace 2, Herdr on workspace 1 (bin/sway-autostart).
+exec sway-autostart
+
+# ── apps ──────────────────────────────────────────────────────────
+bindsym $mod+Return exec herdr-app
+bindsym $mod+w      exec firefox-esr
+bindsym $mod+Shift+Return exec ghostty
+bindsym $mod+Shift+q kill
+
+# ── windows ───────────────────────────────────────────────────────
+bindsym $mod+h focus left
+bindsym $mod+j focus down
+bindsym $mod+k focus up
+bindsym $mod+l focus right
+bindsym $mod+Shift+h move left
+bindsym $mod+Shift+j move down
+bindsym $mod+Shift+k move up
+bindsym $mod+Shift+l move right
+bindsym $mod+Shift+f fullscreen toggle
+bindsym $mod+f exec sway-next-window float
+bindsym $mod+v exec sway-next-window below
+bindsym $mod+Shift+space floating toggle, border pixel 2
+bindsym $mod+Shift+minus move scratchpad
+bindsym $mod+minus scratchpad show, border pixel 2
+
+# Super+/: the Sway keybind sheet in a floating window
+bindsym $mod+slash exec ghostty --class=dotfiles.keys -e keys
+for_window [app_id="dotfiles.keys"] floating enable, border pixel 2, resize set 760 560, move position center
+
+# ── workspaces ────────────────────────────────────────────────────
+bindsym $mod+1 workspace number 1
+bindsym $mod+2 workspace number 2
+bindsym $mod+3 workspace number 3
+bindsym $mod+4 workspace number 4
+bindsym $mod+Shift+1 move container to workspace number 1
+bindsym $mod+Shift+2 move container to workspace number 2
+bindsym $mod+Shift+3 move container to workspace number 3
+bindsym $mod+Shift+4 move container to workspace number 4
+
+# ── session ───────────────────────────────────────────────────────
+bindsym $mod+Escape exec lock-screen
+bindsym $mod+Shift+r reload
+bindsym $mod+Shift+e exec swaynag -t warning -m 'Log out?' -B 'Yes' 'swaymsg exit'
+bindsym Print exec grim -g "$(slurp)" ~/screenshot-$(date +%F-%H%M%S).png
+
+# ── hardware keys ─────────────────────────────────────────────────
+bindsym XF86MonBrightnessUp   exec brightnessctl set 5%+
+bindsym XF86MonBrightnessDown exec brightnessctl set 5%-
+bindsym XF86AudioRaiseVolume  exec wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%+
+bindsym XF86AudioLowerVolume  exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-
+bindsym XF86AudioMute         exec wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
+
+# Lid closed: screen off (the laptop itself stays awake on the charger).
+bindswitch --reload --locked lid:on  output eDP-1 power off
+bindswitch --reload --locked lid:off output eDP-1 power on
+
+# Lock after 10 min idle and before sleep (lid close on battery).
+exec swayidle -w timeout 600 lock-screen before-sleep lock-screen
+
+# Bar: hidden, shown while Super is held. One button per existing workspace.
+bar {
+    mode hide
+    modifier $mod
+    position top
+    font pango:monospace 10
+    height 22
+    workspace_buttons yes
+    workspace_min_width 26
+    status_command sway-status
+    colors {
+        background $bg
+        statusline $fg
+        separator  $bg2
+        #                  border bg    text
+        focused_workspace  $yel   $yel  $dark
+        active_workspace   $bg3   $bg3  $fg
+        inactive_workspace $bg2   $bg2  $fg
+        urgent_workspace   $red   $red  $dark
+        binding_mode       $yel   $yel  $dark
+    }
+}
+
+exec dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=sway

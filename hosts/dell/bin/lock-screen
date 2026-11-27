@@ -1,0 +1,8 @@
+#!/bin/sh
+# Lock the screen: gtklock (clock + password box), or swaylock if it's missing.
+# -d returns once the lock is up, so swayidle's before-sleep waits for it.
+if command -v gtklock >/dev/null 2>&1; then
+    exec gtklock -d
+else
+    exec swaylock -f -c 32302f --no-unlock-indicator
+fi

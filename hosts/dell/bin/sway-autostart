@@ -1,0 +1,12 @@
+#!/bin/sh
+# Login layout: workspace 2 = Firefox, workspace 1 = Ghostty (focused).
+# No `assign` rules, so later windows open wherever you are.
+has_firefox() { swaymsg -t get_tree | grep -q '"app_id": "firefox-esr"'; }
+
+swaymsg -q workspace number 2
+firefox-esr &
+i=0
+while [ $i -lt 30 ] && ! has_firefox; do sleep 0.5; i=$((i + 1)); done
+
+swaymsg -q workspace number 1
+exec herdr-app

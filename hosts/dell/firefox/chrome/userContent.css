@@ -1,0 +1,55 @@
+/* Built-in pages (settings, add-ons, new tab) take their colours from Firefox's
+   design-system palette, which no theme key reaches. Remap that palette to
+   gruvbox: grays -> gruvbox bg/fg, blue/cyan accent -> yellow, info blue -> gruvbox blue. */
+@-moz-document url-prefix("about:") {
+  :root {
+    --color-gray-100: #282828 !important;
+    --color-gray-90: #32302f !important;
+    --color-gray-80: #3c3836 !important;
+    --color-gray-70: #665c54 !important;
+    --color-gray-60: #928374 !important;
+    --color-gray-50: #a89984 !important;
+    --color-gray-30: #bdae93 !important;
+    --color-gray-20: #ebdbb2 !important;
+    --color-gray-0: #ebdbb2 !important;
+    --color-blue-90: #3c3836 !important;
+    --color-violet-30: #fabd2f !important;
+
+    --color-accent-primary: #fabd2f !important;
+    --color-accent-primary-hover: #d79921 !important;
+    --color-accent-primary-active: #b57614 !important;
+    --color-accent-primary-selected: #fabd2f !important;
+    --button-text-color-primary: #282828 !important;
+    --focus-outline-color: #fabd2f !important;
+    --link-color: #83a598 !important;
+    --link-color-hover: #8ec07c !important;
+    --link-color-active: #8ec07c !important;
+    --icon-color-information: #83a598 !important;
+
+    /* new tab page */
+    --newtab-background-color: #32302f !important;
+    --newtab-background-color-secondary: #3c3836 !important;
+    --newtab-background-card: #3c3836 !important;
+    --newtab-primary-action-background: #fabd2f !important;
+    --button-background-color: #504945 !important;
+    --button-background-color-hover: #665c54 !important;
+    --button-background-color-active: #7c6f64 !important;
+    --button-text-color: #ebdbb2 !important;
+
+    /* text fields (system Field colour is Firefox's #2b2a33) */
+    --input-text-background-color: #282828 !important;
+    --input-text-color: #ebdbb2 !important;
+  }
+  /* unchecked checkboxes/radios: Firefox draws them #2b2a33 whatever the palette */
+  input:is([type="checkbox"], [type="radio"]):not(:checked) {
+    appearance: none !important;
+    width: var(--checkbox-size, 16px) !important;
+    height: var(--checkbox-size, 16px) !important;
+    background-color: #282828 !important;
+    border: 1px solid #928374 !important;
+    border-radius: 3px;
+  }
+  input[type="radio"]:not(:checked) { border-radius: 50% !important; }
+  input:is([type="checkbox"], [type="radio"]) { accent-color: #fabd2f !important; }
+  ::selection { background-color: #fabd2f !important; color: #282828 !important; }
+}

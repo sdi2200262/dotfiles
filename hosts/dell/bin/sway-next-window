@@ -1,0 +1,132 @@
+#!/usr/bin/env python3
+"""Apply a layout choice to the next window on the focused workspace."""
+
+import fcntl
+import json
+import os
+import socket
+import struct
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+IPC_HEADER = struct.Struct("=6sII")
+SUBSCRIBE = 2
+FLOAT_WIDTH = 65
+
+
+def sway(*args):
+    return json.loads(subprocess.check_output(("swaymsg", "-r", *args), text=True))
+
+
+def command(action, container=None):
+    target = f"[con_id={container}] " if container is not None else ""
+    sway(target + action)
+
+
+def locate(node, predicate, parents=()):
+    if predicate(node):
+        return (*parents, node)
+    for child in node["nodes"] + node["floating_nodes"]:
+        if found := locate(child, predicate, (*parents, node)):
+            return found
+    return ()
+
+
+def workspace(path):
+    return next((node["id"] for node in path if node["type"] == "workspace"), None)
+
+
+def receive(stream):
+    header = stream.read(IPC_HEADER.size)
+    if not header:
+        return None
+    _, length, _ = IPC_HEADER.unpack(header)
+    return json.loads(stream.read(length))
+
+
+def float_window(window, path):
+    area = next(node["rect"] for node in path if node["type"] == "workspace")
+    width = area["width"] * FLOAT_WIDTH // 100
+    command("floating enable, border pixel 2", window)
+    # Firefox can override the first resize while applying its initial Wayland geometry.
+    for _ in range(5):
+        time.sleep(0.25)
+        current = locate(sway("-t", "get_tree"), lambda node: node["id"] == window)
+        if not current or current[-1]["type"] != "floating_con":
+            return
+        rect = current[-1]["rect"]
+        if abs(rect["width"] - width) <= 1 and abs(2 * (rect["x"] - area["x"]) + width - area["width"]) <= 2:
+            return
+        command(f"resize set width {FLOAT_WIDTH} ppt, move position center", window)
+
+
+def arrange_next(mode, connection, stream):
+    events = b'["window","workspace"]'
+    connection.sendall(IPC_HEADER.pack(b"i3-ipc", len(events), SUBSCRIBE) + events)
+    if not receive(stream)["success"]:
+        return
+
+    focused = locate(sway("-t", "get_tree"), lambda node: node["focused"])
+    home = workspace(focused)
+    if home is None:
+        return
+    anchor = focused[-1]
+    parent = focused[-2]
+    floating = anchor["type"] == "floating_con" or any(
+        node["type"] == "floating_con" for node in focused
+    )
+    split = mode == "below" and anchor["type"] == "con" and not floating
+    if split:
+        command("splitv", anchor["id"])
+
+    placed = False
+    try:
+        while event := receive(stream):
+            if event["change"] == "focus" and "current" in event:
+                if event["current"]["id"] != home:
+                    return
+            if event["change"] != "new" or "container" not in event:
+                continue
+
+            window = event["container"]["id"]
+            tree = sway("-t", "get_tree")
+            path = locate(tree, lambda node: node["id"] == window)
+            if workspace(path) != home or path[-1]["type"] == "floating_con":
+                continue
+            if mode == "float":
+                float_window(window, path)
+            elif split:
+                # Future launches should be horizontal from either end of the pair.
+                command("splith", window)
+                original = locate(tree, lambda node: node["id"] == anchor["id"])
+                if workspace(original) == home and original[-1]["type"] == "con":
+                    command("splith", anchor["id"])
+            placed = True
+            return
+    finally:
+        if split and not placed:
+            tree = sway("-t", "get_tree")
+            path = locate(tree, lambda node: node["id"] == anchor["id"])
+            if len(path) > 1 and workspace(path) == home and len(path[-2]["nodes"]) == 1:
+                if path[-2]["id"] != parent["id"]:
+                    command("split none", anchor["id"])
+                elif parent["layout"] == "splith":
+                    command("splith", anchor["id"])
+
+
+if __name__ == "__main__":
+    if sys.argv[1:] not in (["below"], ["float"]):
+        sys.exit("usage: sway-next-window below|float")
+    # A single layout choice can be armed per compositor.
+    sway_socket = Path(os.environ["SWAYSOCK"])
+    with sway_socket.with_suffix(".next-window.lock").open("w") as lock:
+        try:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            sys.exit(0)
+        with socket.socket(socket.AF_UNIX) as connection:
+            connection.connect(str(sway_socket))
+            with connection.makefile("rb") as stream:
+                arrange_next(sys.argv[1], connection, stream)

@@ -1,0 +1,19 @@
+#!/bin/sh
+# Refresh fullscreen promptly and poll hardware less often.
+ticks=0
+while :; do
+    if [ "$ticks" -eq 0 ]; then
+        ssid=$(nmcli -t -f active,ssid dev wifi 2>/dev/null | awk -F: '$1=="yes"{print $2; exit}')
+        bat=/sys/class/power_supply/BAT0
+        cap=$(cat "$bat/capacity" 2>/dev/null)
+        st=$(cat "$bat/status" 2>/dev/null)
+        case "$st" in Charging) b="+$cap%";; *) b="$cap%";; esac
+    fi
+    fullscreen=
+    if swaymsg -t get_tree 2>/dev/null | jq -e 'any(.. | objects; .focused == true and (.fullscreen_mode // 0) > 0)' >/dev/null; then
+        fullscreen='FULLSCREEN  │  '
+    fi
+    printf '%s%s  │  bat %s  │  %s \n' "$fullscreen" "${ssid:-offline}" "$b" "$(date '+%a %d %b  %H:%M')"
+    ticks=$(((ticks + 1) % 10))
+    sleep 1
+done
