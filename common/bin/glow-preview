@@ -14,4 +14,4 @@ tmp=$(mktemp -d "${TMPDIR:-/tmp}/glow-preview.XXXXXX")
 trap 'rm -rf "$tmp"' EXIT
 jq --argjson margin "$margin" '.document.margin = $margin' "$style" >"$tmp/style.json"
 CLICOLOR_FORCE=1 glow -s "$tmp/style.json" -w "$cols" - 2>&1 |
-    less -R --tilde --mouse --wheel-lines=3 --prompt='s Markdown preview  ?e(END):%Pb\%. (q to quit)' >/dev/tty
+    less -Rc --tilde --mouse --wheel-lines=3 --prompt='s Markdown preview  ?e(END):%Pb\%. (q to quit)' >/dev/tty

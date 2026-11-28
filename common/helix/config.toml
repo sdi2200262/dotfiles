@@ -29,8 +29,9 @@ N = ["search_prev", "align_view_center"]                # previous match, kept c
 
 [keys.normal.space]
 q = ":buffer-close"                                     # close current buffer
-l = [":write-all", ":new", ":insert-output lazygit", ":buffer-close!", ":redraw", ":reload-all"]
-t = [":write-all", ":new", ":insert-output tuicr </dev/tty >/dev/tty", ":buffer-close!", ":redraw", ":reload-all"]
+l = [":write-all", ":new", ":insert-output lazygit --use-config-file \"$HOME/.config/lazygit/config.yml\"", ":buffer-close!", ":redraw", ":reload-all"]
+# macOS needs the actual terminal device for tuicr's input polling.
+t = [":write-all", ":new", ":insert-output tuicr <\"/dev/$(ps -o tty= -p $$ | tr -d '[:space:]')\" >/dev/tty", ":buffer-close!", ":redraw", ":reload-all"]
 m = ["save_selection", "select_all", ":pipe-to glow-preview", "jump_backward", ":redraw"]
 
 [keys.select]
