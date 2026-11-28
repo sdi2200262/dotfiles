@@ -123,11 +123,6 @@ install_extras_linux() {
         link "$HOME/.local/helix/hx" "$bin/hx"
     fi
     # Helix language servers (see common/helix/languages.toml.tmpl).
-    if ! have harper-ls; then
-        say "harper-ls (GitHub release)"
-        url="$(gh_asset automattic/harper 'harper-ls-x86_64-unknown-linux-gnu\.tar\.gz$')"
-        run sh -c "curl -fsSL '$url' | tar -xz -C '$bin' harper-ls"
-    fi
     if ! have texlab; then
         say "texlab (GitHub release)"
         url="$(gh_asset latex-lsp/texlab 'texlab-x86_64-linux\.tar\.gz$')"
@@ -259,6 +254,13 @@ if [ -z "$LINKS_ONLY" ]; then
         linux) install_apt; install_extras_linux ;;
         mac)   install_brew ;;
     esac
+    # harper-ls: the release binary on every OS (Homebrew builds it from source on Intel Macs).
+    if ! have harper-ls; then
+        say "harper-ls (GitHub release)"
+        case "$OS" in linux) target=x86_64-unknown-linux-gnu ;; mac) target=x86_64-apple-darwin ;; esac
+        url="$(gh_asset automattic/harper "harper-ls-$target\\.tar\\.gz$")"
+        run sh -c "curl -fsSL '$url' | tar -xz -C '$HOME/.local/bin' harper-ls"
+    fi
     # Python language servers, as uv tools on every OS.
     for tool in ruff pyright; do
         have "$tool" || { say "$tool (uv tool)"; run uv tool install "$tool"; }
