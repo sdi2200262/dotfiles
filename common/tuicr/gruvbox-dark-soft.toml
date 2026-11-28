@@ -1,0 +1,65 @@
+# Gruvbox Dark (soft contrast) for tuicr — UI palette half.
+# The syntax-highlighting half is the sibling gruvbox-dark-soft.tmTheme.
+# Diff/syntax backgrounds match the local git-delta profile.
+
+# Base
+panel_bg      = "#32302f"   # discarded while transparent_background = true
+bg_highlight  = "#3c3836"
+fg_primary    = "#ebdbb2"
+fg_secondary  = "#a89984"
+fg_dim        = "#928374"
+
+# Diff
+diff_add            = "#b8bb26"
+diff_add_bg         = "#1e2d1c"
+diff_del            = "#fb4934"
+diff_del_bg         = "#3c1f1e"
+diff_context        = "#ebdbb2"
+diff_hunk_header    = "#83a598"
+expanded_context_fg = "#928374"
+
+# Syntax-highlight diff backgrounds
+syntax_add_bg = "#1e2d1c"
+syntax_del_bg = "#3c1f1e"
+
+# Syntect theme (relative to this file)
+syntax_theme = "gruvbox-dark-soft.tmTheme"
+
+# File status
+file_added    = "#b8bb26"
+file_modified = "#fabd2f"
+file_deleted  = "#fb4934"
+file_renamed  = "#d3869b"
+
+# Review status
+reviewed = "#b8bb26"
+pending  = "#fabd2f"
+
+# Comment types
+comment_note       = "#83a598"
+comment_suggestion = "#8ec07c"
+comment_issue      = "#fb4934"
+comment_praise     = "#b8bb26"
+
+# UI elements
+border_focused   = "#8ec07c"
+border_unfocused = "#504945"
+status_bar_bg    = "#3c3836"
+cursor_color     = "#fe8019"
+cursor_line_bg   = "#3c3836"
+branch_name      = "#8ec07c"
+help_indicator   = "#928374"
+
+# Messages / update badge (fg = bg color for legible text on the coloured chip)
+message_info_fg    = "#32302f"
+message_info_bg    = "#8ec07c"
+message_warning_fg = "#32302f"
+message_warning_bg = "#fabd2f"
+message_error_fg   = "#32302f"
+message_error_bg   = "#fb4934"
+update_badge_fg    = "#32302f"
+update_badge_bg    = "#fe8019"
+
+# Mode indicator
+mode_fg = "#32302f"
+mode_bg = "#b8bb26"

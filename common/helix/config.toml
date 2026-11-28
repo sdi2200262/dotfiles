@@ -30,6 +30,8 @@ N = ["search_prev", "align_view_center"]                # previous match, kept c
 [keys.normal.space]
 q = ":buffer-close"                                     # close current buffer
 l = [":write-all", ":new", ":insert-output lazygit", ":buffer-close!", ":redraw", ":reload-all"]
+t = [":write-all", ":new", ":insert-output tuicr </dev/tty >/dev/tty", ":buffer-close!", ":redraw", ":reload-all"]
+m = ["save_selection", "select_all", ":pipe-to glow-preview", "jump_backward", ":redraw"]
 
 [keys.select]
 

@@ -1,0 +1,21 @@
+# tuicr — code review TUI (github.com/agavra/tuicr)
+# XDG path: ~/.config/tuicr/config.toml
+
+theme = "gruvbox-dark-soft"     # local theme in themes/; sets UI palette + syntect .tmTheme
+transparent_background = true   # panel_bg -> Reset: inherit the terminal's gruvbox-soft bg
+
+leader = ";"                    # tuicr default
+
+diff_view = "unified"
+wrap = true                     # wrap long lines rather than horizontal h/l scrolling
+show_file_list = true           # PR-style file sidebar
+cursor_line = true              # highlight the current line
+scroll_offset = 4               # keep 4 rows of context around the cursor
+
+comment_vim = true              # modal (helix/vim) editing in the comment box
+comment_tab_width = 4
+
+mouse = false
+no_update_check = true
+
+username = "CobuterMan"         # stamped on locally authored comments

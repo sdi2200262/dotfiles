@@ -178,6 +178,54 @@ install_brew() {
     run brew bundle --file "$DOT/packages/Brewfile"
 }
 
+# Keep the Helix overlays on the same releases across machines.
+install_helix_overlays() (
+    local bin="$HOME/.local/bin" arch rust_target glow_platform tool version repo archive member tmp
+    arch="$(uname -m)"
+    case "$arch" in arm64|aarch64) arch=arm64; rust_target=aarch64 ;; *) rust_target="$arch" ;; esac
+    case "$OS" in
+        linux) rust_target="$rust_target-unknown-linux-musl"; glow_platform=Linux ;;
+        mac)   rust_target="$rust_target-apple-darwin"; glow_platform=Darwin ;;
+    esac
+    run mkdir -p "$bin"
+    for tool in tuicr glow; do
+        case "$tool" in
+            tuicr)
+                version=0.30.0
+                repo=agavra/tuicr
+                archive="tuicr-$version-$rust_target"
+                member=tuicr
+                ;;
+            glow)
+                version=3.0.0
+                repo=charmbracelet/glow
+                archive="glow_${version}_${glow_platform}_$arch"
+                member="$archive/glow"
+                ;;
+        esac
+        case "$("$tool" --version 2>/dev/null || true)" in
+            "$tool $version"|"$tool version $version ("*")") continue ;;
+        esac
+        say "$tool $version (GitHub release)"
+        tmp="$(mktemp -d)"
+        trap 'rm -rf "$tmp"' EXIT
+        run curl -fsSL "https://github.com/$repo/releases/download/v$version/$archive.tar.gz" -o "$tmp/$archive.tar.gz"
+        run tar -xzf "$tmp/$archive.tar.gz" -C "$tmp" "$member"
+        run install -m755 "$tmp/$member" "$bin/$tool"
+        rm -rf "$tmp"
+        trap - EXIT
+    done
+)
+
+link_helix_overlays() {
+    local C="$DOT/common" X="${XDG_CONFIG_HOME:-$HOME/.config}"
+    link "$C/bin/glow-preview"                    "$HOME/.local/bin/glow-preview"
+    link "$C/glow/gruvbox-dark-soft.json"         "$X/glow/gruvbox-dark-soft.json"
+    link "$C/tuicr/config.toml"                   "$X/tuicr/config.toml"
+    link "$C/tuicr/gruvbox-dark-soft.toml"        "$X/tuicr/themes/gruvbox-dark-soft.toml"
+    link "$C/yazi/gruvbox-dark-soft.tmTheme"      "$X/tuicr/themes/gruvbox-dark-soft.tmTheme"
+}
+
 # ── 2. configs ────────────────────────────────────────────────────
 link_common() {
     local C="$DOT/common" X="$HOME/.config"
@@ -187,6 +235,7 @@ link_common() {
     link "$C/helix/config.toml"             "$X/helix/config.toml"
     link "$C/helix/ignore"                  "$X/helix/ignore"
     render "$C/helix/languages.toml.tmpl"   "$X/helix/languages.toml"
+    link_helix_overlays
     link "$C/starship.toml"                 "$X/starship.toml"
     link "$C/git/gitconfig"                 "$HOME/.gitconfig"
     link "$C/bat/config"                    "$X/bat/config"
@@ -254,6 +303,7 @@ if [ -z "$LINKS_ONLY" ]; then
         linux) install_apt; install_extras_linux ;;
         mac)   install_brew ;;
     esac
+    install_helix_overlays
     # harper-ls: the release binary on every OS (Homebrew builds it from source on Intel Macs).
     if ! have harper-ls; then
         say "harper-ls (GitHub release)"

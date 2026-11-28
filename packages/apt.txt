@@ -13,6 +13,7 @@ wget
 unzip
 xz-utils
 jq
+less
 ripgrep
 fd-find
 fzf

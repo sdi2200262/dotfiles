@@ -1,0 +1,17 @@
+#!/bin/sh
+# Helix pipes in the buffer. less uses the terminal for keys and output.
+set -eu
+
+style="${XDG_CONFIG_HOME:-$HOME/.config}/glow/gruvbox-dark-soft.json"
+max_width="${GLOW_PREVIEW_WIDTH:-100}"
+case "$max_width" in ''|0*|*[!0-9]*) max_width=100 ;; esac
+size=$(stty size </dev/tty 2>/dev/null) || size=
+cols=${size#* }
+[ "${cols:-0}" -ge 8 ] || cols=80
+margin=$((cols > max_width + 4 ? (cols - max_width) / 2 : 2))
+
+tmp=$(mktemp -d "${TMPDIR:-/tmp}/glow-preview.XXXXXX")
+trap 'rm -rf "$tmp"' EXIT
+jq --argjson margin "$margin" '.document.margin = $margin' "$style" >"$tmp/style.json"
+CLICOLOR_FORCE=1 glow -s "$tmp/style.json" -w "$cols" - 2>&1 |
+    less -R --tilde --mouse --wheel-lines=3 --prompt='s Markdown preview  ?e(END):%Pb\%. (q to quit)' >/dev/tty

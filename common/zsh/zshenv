@@ -1,2 +1,13 @@
 [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 case ":$PATH:" in *":$HOME/.local/bin:"*) ;; *) export PATH="$HOME/.local/bin:$PATH" ;; esac
+
+# macOS SSH commands skip .zshrc and its Homebrew PATH setup.
+if [[ "$OSTYPE" == darwin* ]]; then
+    for brew_bin in /opt/homebrew/bin /usr/local/bin; do
+        case ":$PATH:" in
+            *":$brew_bin:"*) ;;
+            *) [ ! -d "$brew_bin" ] || export PATH="$PATH:$brew_bin" ;;
+        esac
+    done
+    unset brew_bin
+fi
