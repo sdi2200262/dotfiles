@@ -20,4 +20,3 @@ bat
 eza
 zoxide
 starship
-hx

@@ -38,6 +38,8 @@ say()  { printf '\033[1;33m==>\033[0m %s\n' "$*"; }
 note() { printf '    %s\n' "$*"; }
 run()  { if [ -n "$DRY" ]; then printf '    [dry] %s\n' "$*"; else "$@"; fi; }
 have() { command -v "$1" >/dev/null 2>&1; }
+# User-level installs land in ~/.local/bin; find them on a fresh machine too.
+case ":$PATH:" in *":$HOME/.local/bin:"*) ;; *) export PATH="$HOME/.local/bin:$PATH" ;; esac
 
 # Move an existing file out of the way (keeps its path under $BACKUP).
 backup() {
@@ -109,8 +111,8 @@ install_extras_linux() {
     # Debian names bat/fd differently.
     have batcat && ! have bat && link "$(command -v batcat)" "$bin/bat"
     have fdfind && ! have fd  && link "$(command -v fdfind)" "$bin/fd"
-    # helix: Debian ships it as `hx`; elsewhere use the release tarball.
-    if ! have hx; then
+    # helix: the release tarball, since Debian's `hx` lags behind macOS and Ubuntu.
+    if ! [ -x "$bin/hx" ]; then
         say "helix (GitHub release)"
         url="$(gh_asset helix-editor/helix 'x86_64-linux\.tar\.xz$')"
         tmp="$(mktemp -d)"
@@ -119,6 +121,33 @@ install_extras_linux() {
         run rm -rf "$HOME/.local/helix"
         run mv "$tmp"/helix-*-x86_64-linux "$HOME/.local/helix"
         link "$HOME/.local/helix/hx" "$bin/hx"
+    fi
+    # Helix language servers (see common/helix/languages.toml.tmpl).
+    if ! have harper-ls; then
+        say "harper-ls (GitHub release)"
+        url="$(gh_asset automattic/harper 'harper-ls-x86_64-unknown-linux-gnu\.tar\.gz$')"
+        run sh -c "curl -fsSL '$url' | tar -xz -C '$bin' harper-ls"
+    fi
+    if ! have texlab; then
+        say "texlab (GitHub release)"
+        url="$(gh_asset latex-lsp/texlab 'texlab-x86_64-linux\.tar\.gz$')"
+        run sh -c "curl -fsSL '$url' | tar -xz -C '$bin' texlab"
+    fi
+    if ! have markdown-oxide; then
+        say "markdown-oxide (GitHub release)"
+        url="$(gh_asset Feel-ix-343/markdown-oxide 'x86_64-unknown-linux-gnu$')"
+        run curl -fsSL "$url" -o "$bin/markdown-oxide"
+        run chmod +x "$bin/markdown-oxide"
+    fi
+    if ! have marksman; then
+        say "marksman (GitHub release)"
+        url="$(gh_asset artempyanykh/marksman 'marksman-linux-x64$')"
+        run curl -fsSL "$url" -o "$bin/marksman"
+        run chmod +x "$bin/marksman"
+    fi
+    if ! have uv; then
+        say "uv (official installer)"
+        run sh -c "curl -LsSf https://astral.sh/uv/install.sh | env UV_NO_MODIFY_PATH=1 sh"
     fi
     if ! have starship; then
         say "starship (official installer)"
@@ -230,6 +259,10 @@ if [ -z "$LINKS_ONLY" ]; then
         linux) install_apt; install_extras_linux ;;
         mac)   install_brew ;;
     esac
+    # Python language servers, as uv tools on every OS.
+    for tool in ruff pyright; do
+        have "$tool" || { say "$tool (uv tool)"; run uv tool install "$tool"; }
+    done
 fi
 link_common
 local_files
