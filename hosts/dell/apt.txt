@@ -18,6 +18,7 @@ wireplumber
 firefox-esr
 network-manager
 console-setup
+fonts-symbola
 # Ghostty build (source tarball)
 libgtk-4-dev
 libgtk4-layer-shell-dev
