@@ -23,8 +23,8 @@ gui:
       - "#fb4934"
     defaultFgColor:
       - "#ebdbb2"
-  authorColors:
-    "*": "#d3869b"
-  branchColors:
-    main: "#fabd2f"
-    master: "#fabd2f"
+    authorColors:
+      "*": "#d3869b"
+    branchColorPatterns:
+      ^main(/|$): "#fabd2f"
+      ^master(/|$): "#fabd2f"
